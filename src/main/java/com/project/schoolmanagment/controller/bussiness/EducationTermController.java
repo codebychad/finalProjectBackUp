@@ -1,0 +1,90 @@
+package com.project.schoolmanagment.controller.bussiness;
+
+import com.project.schoolmanagment.payload.request.business.EducationTermRequest;
+import com.project.schoolmanagment.payload.response.business.EducationTermResponse;
+import com.project.schoolmanagment.payload.response.message.ResponseMessage;
+import com.project.schoolmanagment.service.business.EducationTermService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
+
+@RestController
+@RequestMapping("/educationTerms")
+@RequiredArgsConstructor
+public class EducationTermController {
+
+	private final EducationTermService educationTermService;
+
+	@PostMapping("/save")
+	@PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
+	public ResponseMessage<EducationTermResponse> saveEducationTerm(@Valid @RequestBody EducationTermRequest educationTermRequest){
+		return educationTermService.saveEducationTerm(educationTermRequest);
+	}
+
+
+	@PutMapping("/update/{id}")
+	@PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
+	public ResponseMessage<EducationTermResponse>updateEducationTerm(@PathVariable Long id, @RequestBody @Valid EducationTermRequest educationTermRequest){
+		return educationTermService.updateEducationTerm(id,educationTermRequest);
+	}
+
+	@GetMapping("/{id}")
+	@PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','ASSISTANT_MANAGER','TEACHER')")
+	public EducationTermResponse findEducationTermById(@PathVariable Long id){
+		return educationTermService.findEducationTermById(id);
+	}
+
+	@GetMapping("/getAll")
+	@PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','ASSISTANT_MANAGER','TEACHER')")
+	public List<EducationTermResponse>getAllEducationTerm(){
+		return educationTermService.getAllEducationTerm();
+	}
+
+	@DeleteMapping("/delete/{id}")
+	@PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','ASSISTANT_MANAGER','TEACHER')")
+	public ResponseMessage<?>deleteEducationTermById(@PathVariable Long id){
+		return educationTermService.deleteEducationTermById(id);
+	}
+
+	@GetMapping("/getAllEducationsTermByPage")
+	@PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','ASSISTANT_MANAGER','TEACHER')")
+	public Page<EducationTermResponse>getAllEducationTermByPage(
+			@RequestParam(value = "page",defaultValue = "0") int page,
+			@RequestParam(value = "size",defaultValue = "10") int size,
+			@RequestParam(value = "sort",defaultValue = "startDate") String sort,
+			@RequestParam(value = "type",defaultValue = "desc") String type	){
+		return educationTermService.getAllEducationTermByPage(page,size,sort,type);
+	}
+
+	//TODO -> searchByYear
+	//TODO -> searchByStartDate ( two entry)
+	//TODO -> searchByDateSince ( one date entry )
+
+
+	@GetMapping("/searchByYear/{year}")
+	@PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','ASSISTANT_MANAGER','TEACHER')")
+	public List<EducationTermResponse> searchByYear(@PathVariable Integer year){
+		return educationTermService.getEducationTermByYear(year);
+	}
+
+	@GetMapping("/searchByStartDate")
+	@PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','ASSISTANT_MANAGER','TEACHER')")
+	public List<EducationTermResponse> searchByStartDate(@RequestParam String firstDateString,
+														 @RequestParam String secondDateString){
+		return educationTermService.getEducationTermByByStartDate(firstDateString,secondDateString);
+	}
+
+
+	@GetMapping("/searchByDateSince/{startDateString}")
+	@PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','ASSISTANT_MANAGER','TEACHER')")
+	public List<EducationTermResponse> searchByDateSince(@PathVariable String startDateString){
+		return educationTermService.getEducationTermsByDateSince(startDateString);
+	}
+
+
+
+}
